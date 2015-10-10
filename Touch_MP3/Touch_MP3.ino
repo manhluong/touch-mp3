@@ -10,6 +10,8 @@
  Semiconductor datasheets and application notes.
  
  Bare Conductive code written by Stefan Dzisiewski-Smith and Peter Krige.
+
+ Modified by Manh Luong Bui.
  
  This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 
  Unported License (CC BY-SA 3.0) http://creativecommons.org/licenses/by-sa/3.0/
@@ -48,6 +50,10 @@ int lastPlayed = 0;
 #define firstPin 0
 #define lastPin 11
 
+#define MULTITRACK 11
+#define MULTIMIN 0
+#define MULTIMAX 13
+
 // sd card instantiation
 SdFat sd;
 
@@ -80,11 +86,34 @@ void setup(){
     Serial.print(result);
     Serial.println(" when trying to start MP3 player");
    }
-   
+
+  randomSeed(analogRead(0));
 }
 
 void loop(){
   readTouchInputs();
+}
+
+/**
+ * This function is needed because we have multiple tracks associated to one pin.
+ * So if the selected track is the multi one, play the relative tracks accordingly.
+ */
+void playTrack(int trackNo){
+  
+  if(trackNo == MULTITRACK){
+
+    //ref.: https://github.com/madsci1016/Sparkfun-MP3-Player-Shield-Arduino-Library/blob/master/SFEMP3Shield/SFEMP3Shield.cpp
+    
+    char trackName[] = "track00101.mp3";
+    uint8_t randNumber = (uint8_t)random(MULTIMIN, MULTIMAX);
+    sprintf(trackName, "track%03d.mp3", trackNo+randNumber);
+    Serial.print("playing multi track ");
+    Serial.println(trackName);
+    MP3player.playMP3(trackName);
+  }
+  else{
+    MP3player.playTrack(trackNo);
+  }
 }
 
 
@@ -117,7 +146,7 @@ void readTouchInputs(){
                   // if we're already playing a different track, stop that 
                   // one and play the newly requested one
                   MP3player.stopTrack();
-                  MP3player.playTrack(i-firstPin);
+                  playTrack(i-firstPin);
                   Serial.print("playing track ");
                   Serial.println(i-firstPin);
                   
@@ -128,7 +157,7 @@ void readTouchInputs(){
               } else {
                 // if we're playing nothing, play the requested track 
                 // and update lastplayed
-                MP3player.playTrack(i-firstPin);
+                playTrack(i-firstPin);
                 Serial.print("playing track ");
                 Serial.println(i-firstPin);
                 lastPlayed = i;
