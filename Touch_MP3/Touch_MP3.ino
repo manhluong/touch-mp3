@@ -52,7 +52,7 @@ int lastPlayed = 0;
 
 #define MULTITRACK 11
 #define MULTIMIN 0
-#define MULTIMAX 7
+#define MULTIMAX 11
 
 // sd card instantiation
 SdFat sd;
