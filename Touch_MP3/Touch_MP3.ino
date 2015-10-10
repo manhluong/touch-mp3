@@ -52,7 +52,7 @@ int lastPlayed = 0;
 
 #define MULTITRACK 11
 #define MULTIMIN 0
-#define MULTIMAX 13
+#define MULTIMAX 7
 
 // sd card instantiation
 SdFat sd;
@@ -137,14 +137,8 @@ void readTouchInputs(){
             
             if(i<=lastPin && i>=firstPin){
               if(MP3player.isPlaying()){
-                if(lastPlayed==i){
-                  // if we're already playing the requested track, stop it
-                  MP3player.stopTrack();
-                  Serial.print("stopping track ");
-                  Serial.println(i-firstPin);
-                } else {
-                  // if we're already playing a different track, stop that 
-                  // one and play the newly requested one
+                  // if we're already playing a track, stop that 
+                  // one and play the requested one
                   MP3player.stopTrack();
                   playTrack(i-firstPin);
                   Serial.print("playing track ");
@@ -153,7 +147,6 @@ void readTouchInputs(){
                   // don't forget to update lastPlayed - without it we don't
                   // have a history
                   lastPlayed = i;
-                }
               } else {
                 // if we're playing nothing, play the requested track 
                 // and update lastplayed
